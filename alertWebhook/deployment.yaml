@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-webhook-dingtalk
+  namespace: monitoring
+  labels:
+    app: prometheus-webhook-dingtalk
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: prometheus-webhook-dingtalk
+  minReadySeconds: 0
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: prometheus-webhook-dingtalk
+    spec:
+      containers:
+      - name: prometheus-webhook-dingtalk
+        image: timonwong/prometheus-webhook-dingtalk
+       # args:
+       # - "----config.file=/etc/prometheus-webhook-dingtalk/config.yml"
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
+        readinessProbe:
+          tcpSocket:
+            port: 8060
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8060
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        ports:
+        - containerPort: 8060
+          protocol: TCP
+          name: http
+        volumeMounts:
+        - name: prometheus-webhook-dingtalk
+          mountPath: "/etc/prometheus-webhook-dingtalk/config.yml"
+          subPath: config.yml
+      volumes:
+      - configMap:
+          name: prometheus-webhook-dingtalk
+        name: prometheus-webhook-dingtalk
+

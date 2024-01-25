@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-webhook-dingtalk
+  namespace: monitoring
+data:
+  config.yml: |
+    targets:
+      webhook_ding:
+        url: https://oapi.dingtalk.com/robot/send?access_token=1dfa9f2d57649ace8ecd5917814a8c8d43201419f421ba5155f02936d8aec51b  # 配置机器人的webhook_url）
+        secret: SECd2239c2db306ad97e800fbab4fdc9b1c8df58d368c0eb8fda1f7f3e81e3312a6
+        message:
+          title: '{{ template "default.title" . }}'
+          text: '{{ template "default.content" . }}'
+
