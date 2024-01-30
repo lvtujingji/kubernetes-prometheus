@@ -30,7 +30,7 @@ data:
           description: "A Prometheus target has disappeared. An exporter might be crashed.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       
       - alert: PrometheusTooManyRestarts
-        expr: changes(process_start_time_seconds{kubernetes_name=~"prometheus-service|alertmanager|node-exporter"}[15m]) > 2
+        expr: changes({kubernetes_name=~"prometheus|alertmanager|node-exporter|grafana"}[15m]) > 2
         for: 0m
         labels:
           severity: warning
@@ -39,7 +39,7 @@ data:
           description: "Prometheus has restarted more than twice in the last 15 minutes. It might be crashlooping.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       	  
       - alert: HostOutOfMemory
-        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
+        expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 2m
         labels:
           severity: warning
@@ -48,7 +48,7 @@ data:
           description: "Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
        
       - alert: HostMemoryUnderMemoryPressure
-        expr: rate(node_vmstat_pgmajfault[1m]) > 1000
+        expr: (rate(node_vmstat_pgmajfault[1m]) > 1000) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 2m
         labels:
           severity: warning
@@ -57,7 +57,7 @@ data:
           description: "The node is under heavy memory pressure. High rate of major page faults\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       	  
       - alert: HostUnusualNetworkThroughputIn
-        expr: sum by (instance) (rate(node_network_receive_bytes_total[2m])) / 1024 / 1024 > 100
+        expr: (sum by (instance) (rate(node_network_receive_bytes_total[2m])) / 1024 / 1024 > 100) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 5m
         labels:
           severity: warning
@@ -66,7 +66,7 @@ data:
           description: "Host network interfaces are probably receiving too much data (> 100 MB/s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       
       - alert: HostUnusualNetworkThroughputOut
-        expr: sum by (instance) (rate(node_network_transmit_bytes_total[2m])) / 1024 / 1024 > 100node_uname_info{nodename=~".+"}
+        expr: (sum by (instance) (rate(node_network_transmit_bytes_total[2m])) / 1024 / 1024 > 100) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 5m
         labels:
           severity: warning
@@ -75,7 +75,7 @@ data:
           description: "Host network interfaces are probably sending too much data (> 100 MB/s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       
       - alert: HostUnusualDiskReadRate
-        expr: sum by (instance) (rate(node_disk_read_bytes_total[2m])) / 1024 / 1024 > 50)
+        expr: (sum by (instance) (rate(node_disk_read_bytes_total[2m])) / 1024 / 1024 > 50) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 5m
         labels:
           severity: warning
@@ -84,7 +84,7 @@ data:
           description: "Disk is probably reading too much data (> 50 MB/s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       
       - alert: HostUnusualDiskWriteRate
-        expr: sum by (instance) (rate(node_disk_written_bytes_total[2m])) / 1024 / 1024 > 50)
+        expr: (sum by (instance) (rate(node_disk_written_bytes_total[2m])) / 1024 / 1024 > 50) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 2m
         labels:
           severity: warning
@@ -93,7 +93,7 @@ data:
           description: "Disk is probably writing too much data (> 50 MB/s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       
       - alert: HostOutOfDiskSpace
-        expr: (node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10 and ON (instance, device, mountpoint) node_filesystem_readonly == 0
+        expr: ((node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10 and ON (instance, device, mountpoint) node_filesystem_readonly == 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 2m
         labels:
           severity: warning
@@ -102,7 +102,7 @@ data:
           description: "Disk is almost full (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       
       - alert: HostHighCpuLoad
-        expr: sum by (instance) (avg by (mode, instance) (rate(node_cpu_seconds_total{mode!="idle"}[2m]))) > 0.85
+        expr: (sum by (instance) (avg by (mode, instance) (rate(node_cpu_seconds_total{mode!="idle"}[2m]))) > 0.85) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 10m
         labels:
           severity: warning
@@ -111,7 +111,7 @@ data:
           description: "CPU load is > 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       
       - alert: HostOomKillDetected
-        expr: increase(node_vmstat_oom_kill[1m]) > 0
+        expr: (increase(node_vmstat_oom_kill[1m]) > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 0m
         labels:
           severity: warning
