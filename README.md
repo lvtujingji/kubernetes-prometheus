@@ -1,5 +1,8 @@
 # kubernetes-prometheus
-Deploy prometheus on kubernetes \n
-如果你在部署过程中有任何问题，欢迎通过邮件的方式和我沟通 \n
-lvtujingji@163.com  \n
-DOC ref 在documentation目录下
+Deploy prometheus on kubernetes
+
+如果你在部署过程中有任何问题，欢迎通过邮件的方式和我沟通
+
+lvtujingji@163.com
+
+步骤参考 在documentation目录下
